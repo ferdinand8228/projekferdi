@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portofolio | Ferdinand Prathama Winoto</title>
+    
+    <!-- Menggunakan font retro/pixelated dari Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=VT323&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Palette warna malam yang tenang (Retro Game) */
+            --bg-color: #1a1c2c; /* Biru malam gelap */
+            --panel-bg: #29366f; /* Biru panel UI */
+            --primary-color: #3b5dc9; /* Biru utama */
+            --accent-color: #57b9f2; /* Biru muda cerah untuk teks sorotan */
+            --green-accent: #38b764; /* Hijau pixel untuk tombol */
+            --text-color: #e0f8cf; /* Warna putih kehijauan khas gameboy/retro */
+            --border-color: #12131c; /* Garis batas tebal */
+            --light-text: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* Font VT323 untuk teks bacaan agar mudah dibaca namun tetap retro */
+            font-family: 'VT323', monospace;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            font-size: 1.3rem; /* Diperbesar karena font VT323 cenderung kecil */
+            /* Pola latar belakang dihapus, diganti canvas */
+        }
+
+        /* Styling untuk canvas background senja */
+        #pixel-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            /* Memaksa render pixelated saat di scale-up (diperbesar) */
+            image-rendering: pixelated;
+            object-fit: cover;
+        }
+
+        /* Silkscreen untuk judul agar sangat terasa pixel-nya */
+        h1, h2, h3, h4, .logo {
+            font-family: 'Silkscreen', cursive;
+            text-transform: uppercase;
+            font-weight: normal;
+        }
+
+        .pixel-box {
+            background-color: var(--panel-bg);
+            border: 4px solid var(--border-color);
+            box-shadow: 
+                inset -4px -4px 0px rgba(0,0,0,0.4), 
+                inset 4px 4px 0px rgba(255,255,255,0.1),
+                8px 8px 0px rgba(0,0,0,0.6);
+            padding: 2rem;
+            position: relative;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            padding: 1rem 5%;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 4px solid var(--border-color);
+            box-shadow: 0 8px 0px rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px var(--border-color);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 2rem;
+        }
+
+        nav ul li a {
+            color: var(--light-text);
+            text-decoration: none;
+            font-size: 1.3rem;
+            transition: color 0.1s;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent-color);
+            text-shadow: 2px 2px 0px var(--border-color);
+        }
+
+        .menu-toggle {
+            display: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        section {
+            padding: 120px 5% 80px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: rgba(26, 28, 44, 0.6); /* Lebih transparan untuk memperlihatkan senja */
+        }
+
+        /* Alternatif warna latar untuk membedakan section */
+        .alt-section {
+            background-color: rgba(41, 54, 111, 0.75);
+            border-top: 4px solid var(--border-color);
+            border-bottom: 4px solid var(--border-color);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            color: var(--accent-color);
+            margin-bottom: 3rem;
+            text-shadow: 3px 3px 0px var(--border-color);
+        }
+
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-content {
+            flex: 1;
+        }
+
+        .hero-content h2 {
+            font-size: 1.5rem;
+            color: var(--light-text);
+            margin-bottom: 1rem;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-shadow: 4px 4px 0px var(--border-color);
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--green-accent);
+            color: var(--light-text);
+            text-decoration: none;
+            font-family: 'Silkscreen', cursive;
+            font-size: 1rem;
+            border: 4px solid var(--border-color);
+            box-shadow: 
+                inset -4px -4px 0px rgba(0,0,0,0.3), 
+                inset 4px 4px 0px rgba(255,255,255,0.4),
+                6px 6px 0px var(--border-color);
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 
+                inset 4px 4px 0px rgba(0,0,0,0.4),
+                2px 2px 0px var(--border-color);
+        }
+
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-image img {
+            /* Trik: Menggunakan gambar kecil lalu diperbesar agar tampak pixelated */
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            border: 6px solid var(--border-color);
+            background-color: var(--primary-color);
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.5);
+            /* Memaksa browser merender kasar (pixel art style) */
+            image-rendering: pixelated; 
+        }
+
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .skill-card {
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            background-color: #324385; /* Sedikit lebih terang saat di-hover */
+        }
+
+        .skill-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            text-shadow: 3px 3px 0px var(--border-color);
+        }
+
+        .skill-card h3 {
+            color: var(--accent-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .skill-card p {
+            font-size: 1.2rem;
+        }
+
+        .about-text {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            font-size: 1.4rem;
+        }
+
+        .hobbies-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .hobby-item {
+            width: 260px;
+            text-align: center;
+        }
+
+        .hobby-item h4 {
+            font-size: 1.2rem;
+            color: #f3e37c; /* Kuning retro */
+            margin: 1rem 0 0.5rem;
+        }
+
+        .contact-container {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .contact-info p {
+            margin-bottom: 1.5rem;
+        }
+
+        .highlight-text {
+            color: var(--accent-color);
+        }
+
+        footer {
+            background-color: var(--border-color);
+            color: var(--text-color);
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: auto;
+            border-top: 4px solid #000;
+        }
+
+        @media screen and (max-width: 900px) {
+            .hero {
+                flex-direction: column-reverse;
+                text-align: center;
+            }
+
+            .hero-content h1 { font-size: 2.2rem; }
+            .hero-content p { margin: 0 auto 2rem; }
+            
+            .hero-image img {
+                width: 220px;
+                height: 220px;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            nav ul {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 72px;
+                left: 0;
+                width: 100%;
+                background-color: var(--panel-bg);
+                text-align: center;
+                padding: 1rem 0;
+                border-bottom: 4px solid var(--border-color);
+            }
+
+            nav ul.active {
+                display: flex;
+            }
+
+            nav ul li {
+                margin: 1rem 0;
+            }
+
+            .skills-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .skills-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas Background Pixel Art Animasi -->
+    <canvas id="pixel-canvas"></canvas>
+
+    <header>
+        <a href="#" class="logo">FW_</a>
+        <div class="menu-toggle" id="mobile-menu">
+            [=]
+        </div>
+        <nav>
+            <ul id="nav-list">
+                <li><a href="#beranda">START</a></li>
+                <li><a href="#keahlian">SKILLS</a></li>
+                <li><a href="#tentang">ABOUT</a></li>
+                <li><a href="#kontak">CONTACT</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="beranda">
+        <div class="hero">
+            <div class="hero-content">
+                <h2>> PLAYER 1 READY</h2>
+                <h1>Ferdinand Prathama Winoto</h1>
+                <p>Seorang penjelajah dunia digital dengan keahlian dalam Pengembangan Web, Jaringan, dan teknologi modern. Siap menyelesaikan misi dan membangun solusi efisien.</p>
+                <a href="#kontak" class="btn">PRESS START TO HIRE</a>
+            </div>
+            <div class="hero-image">
+                <!-- Gambar dummy dengan resolusi kecil (100x100) yang diperbesar di CSS agar terlihat pixelated alami -->
+                <img src="WhatsApp Image 2026-09-15 at 16.11.17.jpeg" alt="Ferdinand P.W Profil" id="profile-img">
+            </div>
+        </div>
+    </section>
+
+    <section id="keahlian" class="alt-section">
+        <h2 class="section-title">- INVENTORY STATUS -</h2>
+        <div class="skills-container">
+            <div class="skill-card pixel-box">
+                <div class="skill-icon">💻</div>
+                <h3>Pemrograman Web</h3>
+                <p>HTML, CSS, JS Native & Modern</p>
+            </div>
+            
+            <div class="skill-card pixel-box">
+                <div class="skill-icon">🐘</div>
+                <h3>Laravel</h3>
+                <p>Backend solid tingkat lanjut</p>
+            </div>
+            
+            <div class="skill-card pixel-box">
+                <div class="skill-icon">📡</div>
+                <h3>MikroTik</h3>
+                <p>Routing & Jaringan Stabil</p>
+            </div>
+            
+            <div class="skill-card pixel-box">
+                <div class="skill-icon">🚀</div>
+                <h3>Hermes</h3>
+                <p>Optimasi JS Engine Maksimal</p>
+            </div>
+
+            <div class="skill-card pixel-box">
+                <div class="skill-icon">⚙️</div>
+                <h3>OpenCalw</h3>
+                <p>Integrasi & Pengembangan Cepat</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="tentang">
+        <h2 class="section-title">- SIDE QUESTS -</h2>
+        <p class="about-text">
+            Ketika misi utama selesai (coding & jaringan), saya menghabiskan waktu dengan aktivitas ini untuk memulihkan HP & MP agar siap berpetualang keesokan harinya.
+        </p>
+        
+        <div class="hobbies-wrapper">
+            <div class="hobby-item pixel-box">
+                <div class="skill-icon">🏃‍♂️</div>
+                <h4>Olahraga</h4>
+                <p>Meningkatkan stat VIT & AGI fisik di dunia nyata.</p>
+            </div>
+            
+            <div class="hobby-item pixel-box">
+                <div class="skill-icon">🎮</div>
+                <h4>Bermain Game</h4>
+                <p>Menyusun strategi dan menjelajahi realm virtual.</p>
+            </div>
+            
+            <div class="hobby-item pixel-box">
+                <div class="skill-icon">🎧</div>
+                <h4>Musik</h4>
+                <p>Menambah buff fokus melalui alunan nada favorit.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="kontak" class="alt-section">
+        <h2 class="section-title">- MULTIPLAYER MODE -</h2>
+        <div class="contact-container pixel-box">
+            <div class="contact-info">
+                <p>Mencari party member untuk raid proyek web, setup jaringan, atau sekadar bertukar informasi teknologi?</p>
+                <p class="highlight-text">
+                    Email: ferdinand@example.com<br>
+                    Region: Server Indonesia
+                </p>
+            </div>
+            <a href="mailto:ferdinand@example.com" class="btn">KIRIM PESAN (MAIL)</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Ferdinand P.W. | 8-Bit Web Design Edition</p>
+    </footer>
+
+    <script>
+        // --- Animasi Canvas Background Senja Tepi Sungai ---
+        const canvas = document.getElementById('pixel-canvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        
+        // Resolusi internal direndahkan agar tercipta efek pixel art yang kasar namun estetik
+        const W = 160;
+        const H = 90;
+        canvas.width = W;
+        canvas.height = H;
+        
+        let frame = 0;
+        
+        function renderScene() {
+            frame++;
+            
+            // 1. Langit Senja (Banding gradient retro)
+            ctx.fillStyle = "#2b213a"; ctx.fillRect(0, 0, W, H*0.25);
+            ctx.fillStyle = "#5a3a5a"; ctx.fillRect(0, H*0.25, W, H*0.15);
+            ctx.fillStyle = "#935560"; ctx.fillRect(0, H*0.4, W, H*0.15);
+            ctx.fillStyle = "#c57659"; ctx.fillRect(0, H*0.55, W, H*0.1);
+            ctx.fillStyle = "#e5a769"; ctx.fillRect(0, H*0.65, W, H*0.05); // Garis horizon
+            
+            // 2. Matahari Senja
+            ctx.fillStyle = "#ffd581";
+            ctx.fillRect(W/2 - 8, H*0.55, 16, 16); // Bentuk matahari kotak (pixelated)
+            
+            // 3. Pegunungan / Siluet Pepohonan di Horizon (Statis)
+            ctx.fillStyle = "#1a1224";
+            ctx.fillRect(0, H*0.6, 15, 10);
+            ctx.fillRect(5, H*0.55, 10, 15);
+            ctx.fillRect(W/2 - 25, H*0.65, 50, 5);
+            ctx.fillRect(W/2 - 15, H*0.62, 30, 8);
+            ctx.fillRect(W - 30, H*0.58, 30, 12);
+            ctx.fillRect(W - 20, H*0.52, 20, 18);
+            
+            // 4. Sungai (Bagian bawah)
+            ctx.fillStyle = "#201c34";
+            ctx.fillRect(0, H*0.7, W, H*0.3);
+            
+            // 5. Animasi Riak Air Mengalir (Bergerak horizontal saling silang)
+            ctx.fillStyle = "#4a3c63";
+            for(let i=0; i < 15; i++) {
+                let y = H*0.7 + (i * 2);
+                let speed = (i * 0.05) + 0.2;
+                let offset = (frame * speed) % (W + 20);
+                ctx.fillRect(offset - 20, y, 8, 1); // riak gerak ke kanan
+                ctx.fillRect(W - offset, y + 1, 12, 1); // riak gerak ke kiri
+            }
+            
+            // 6. Pantulan Cahaya Matahari di Air (Shimmer effect)
+            ctx.fillStyle = "#e5a769";
+            for(let y = H*0.7; y < H; y += 2) {
+                // Pantulan melebar di bagian bawah dan bergoyang
+                let width = 12 + Math.sin(frame * 0.05 + y) * 4 + ((y - H*0.7) * 0.5);
+                let shift = Math.cos(frame * 0.03 + y) * 3;
+                ctx.fillRect(W/2 - width/2 + shift, y, width, 1);
+            }
+
+            // Loop animasi
+            requestAnimationFrame(renderScene);
+        }
+        
+        // Mulai jalankan animasi rendering
+        renderScene();
+
+        // --- Logika Navigasi Mobile ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobile-menu');
+            const navList = document.getElementById('nav-list');
+            const navLinks = navList.querySelectorAll('a');
+
+            // Toggle menu
+            mobileMenuBtn.addEventListener('click', function() {
+                navList.classList.toggle('active');
+            });
+
+            // Tutup menu otomatis di mobile saat menu ditekan
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        navList.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
